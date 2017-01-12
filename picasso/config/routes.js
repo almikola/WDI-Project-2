@@ -3,7 +3,7 @@ const router = express.Router();
 
 const staticsController = require('../controllers/statics');
 const artController = require('../controllers/arts');
-const authentications = require('../controllers/authenticastions');
+const authentications = require('../controllers/authentications');
 
 router.route('/register')
   .post(authentications.register);
