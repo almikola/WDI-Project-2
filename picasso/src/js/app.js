@@ -1,7 +1,9 @@
-const googleMap = googleMap || {};
+const App = App || {};
 const google = google;
 
-googleMap.mapSetup = function() {
+
+App.mapSetup = function() {
+  App.apiUrl = 'http://localhost:3000/api';
   const canvas = document.getElementById('map-canvas');
   const mapOptions = {
     zoom: 3,
@@ -9,11 +11,70 @@ googleMap.mapSetup = function() {
     mapTypeId: google.maps.MapTypeId.ROADMAP
   };
   this.map = new google.maps.Map(canvas, mapOptions);
+  this.addArt();
 };
 
-$(googleMap.mapSetup.bind(googleMap));
+App.addArt = function() {
+  // return App.ajaxRequest(`${App.apiUrl}/art`, 'GET', null, function(arts){
+  //   const geoCoder = new google.maps.Geocoder();
+  //   arts.forEach(function(art){
+  //     geoCoder.geocode({'location': art.location }, function(results, status) {
+  //       if (status === google.maps.GeocoderStatus.OK) {
+  //         const lat = results[0].geometry.location.lat();
+  //         const lng = results[0].geometry.location.lng();
+  //         const latlng = new google.maps.LatLng(lat, lng);
+  //         const marker = new google.maps.Marker({
+  //           position: latlng,
+  //           map: App.map,
+  //           animation: google.maps.Animation.DROP
+  //         });
+  //       }
+  //     });
+  //     App.addInfoWindow(art, marker);
+  //   });
+  $.get({
+    url: `${App.apiUrl}/art`,
+    beforeSend: App.setRequestHeader.bind(App)
+  }).done(data => {
+    const geoCoder = new google.maps.Geocoder();
+    $.each(data.arts, function(index, art){
+      console.log(art);
+      setTimeout(function(){
+        geoCoder.geocode({'address': art.location }, function(results, status) {
+          if (status === google.maps.GeocoderStatus.OK) {
+            const lat = results[0].geometry.location.lat();
+            const lng = results[0].geometry.location.lng();
+            const latlng = new google.maps.LatLng(lat, lng);
+            const marker = new google.maps.Marker({
+              position: latlng,
+              map: App.map,
+              animation: google.maps.Animation.DROP
+            });
 
-const App = App || {};
+            App.addInfoWindow(art, marker);
+          }
+        });
+      }, 200*index);    
+    });
+  });
+};
+
+
+
+App.addInfoWindow = function(art, marker){
+
+  google.maps.event.addListener(marker, 'click', () => {
+    if (typeof this.infoWindow !== 'undefined')
+    this.infoWindow.close();
+    this.infoWindow = new google.maps.InfoWindow({
+      content: `<p>${ art.location }</p>`
+    });
+    this.infoWindow.open(this.map, marker);
+  });
+};
+
+// $(App.mapSetup.bind(App));
+
 
 App.init = function() {
   this.apiUrl = 'http://localhost:3000/api';
@@ -21,7 +82,7 @@ App.init = function() {
   $('.register').on('click', this.register.bind(this));
   $('.login').on('click', this.logout.bind(this));
   $('.logout').on('click', this.logout.bind(this));
-  $('.usersIndex').on('click', this.usersIndex.bind(this));
+  // $('.usersIndex').on('click', this.artIndex.bind(this));
   this.$main.on('submit', 'form', this.handleForm);
 
   // delegated event handeling
@@ -36,9 +97,12 @@ App.init = function() {
 };
 
 App.loggedInState = function() {
+  console.log('loggedin');
   $('.loggedIn').show();
   $('.loggedOut').hide();
-  this.usersIndex();
+  // this.artIndex();
+  this.$main.html('<div id="map-canvas"></div>');
+  App.mapSetup();
 };
 
 App.loggedOutState = function(){
@@ -52,111 +116,99 @@ App.register = function(e){
   this.$main.html(`
     <h2>Register</h2>
     <form method="post" action="/register">
-      <div class="form-group">
-        <input class="form-control" type="text" name="user[username]" placeholder="Username">
-      </div>
-      <div class="form-group">
-        <input class="form-control" type="email" name="user[email]" placeholder="Email">
-      </div>
-      <div class="form-group">
-        <input class="form-control" type="password" name="user[password]" placeholder="Password">
-      </div>
-      <div class="form-group">
-        <input class="form-control" type="password" name="user[passwordConfirmation]" placeholder="Password Confirmation">
-      </div>
-      <input class="btn btn-primary" type="submit" value="Register">
+    <div class="form-group">
+    <input class="form-control" type="text" name="user[username]" placeholder="Username">
+    </div>
+    <div class="form-group">
+    <input class="form-control" type="email" name="user[email]" placeholder="Email">
+    </div>
+    <div class="form-group">
+    <input class="form-control" type="password" name="user[password]" placeholder="Password">
+    </div>
+    <div class="form-group">
+    <input class="form-control" type="password" name="user[passwordConfirmation]" placeholder="Password Confirmation">
+    </div>
+    <input class="btn btn-primary" type="submit" value="Register">
     </form>
     `);
-};
+  };
 
-App.login = function(e) {
-  e.preventDefault();
-  this.$main.html(`
-    <h2>Login</h2>
-    <form method="post" action="/login">
+  App.login = function(e) {
+    e.preventDefault();
+    this.$main.html(`
+      <h2>Login</h2>
+      <form method="post" action="/login">
       <div class="form-group">
-        <input class="form-control" type="email" name="email" placeholder="Email">
+      <input class="form-control" type="email" name="email" placeholder="Email">
       </div>
       <div class="form-group">
-        <input class="form-control" type="password" name="password" placeholder="Password">
+      <input class="form-control" type="password" name="password" placeholder="Password">
       </div>
       <input class="btn btn-primary" type="submit" value="Login">
-    </form>
-  `);
-};
+      </form>
+      `);
+    };
 
-App.logout = function(e){
-  e.preventDefault();
-  this.removeToken();
-  this.loggedOutState();
-};
+    App.logout = function(e){
+      e.preventDefault();
+      this.removeToken();
+      this.loggedOutState();
+    };
 
-App.usersIndex = function(e) {
-  if (e) e.preventDefautl();
-  const url = `${this.apiUrl}/users`;
+    App.artIndex = function(e) {
+      console.log('this is runningNow');
+      if (e) e.preventDefautl();
+      const url = `${this.apiUrl}/art`;
 
-  return this.ajaxRequest(url, 'get', null, data => {
-    this.$main.html(`
-      <div class="card-deck-wrapper">
-        <div class="card-deck">
-        </div>
-      </div>
-    `);
-    const $container = this.$main.find('.card-deck');
-    $.each(data.users, (i, user) => {
-      $container.append(`
-        <div class="card col-md-4">
-         <img class="card-img-top" src="http://fillmurray.com/300/300" alt="Card image cap">
-         <div class="card-block">
-           <h4 class="card-title">${user.username}</h4>
-           <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-           <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
-         </div>
-       </div>`);
-    });
-  });
-};
+      return this.ajaxRequest(url, 'get', null, data => {
+        console.log(data);
+      });
+    };
 
-App.handleForm = function(e){
-  e.preventDefault();
+    App.handleForm = function(e){
+      e.preventDefault();
 
-  const url = `${App.apiUrl}${$(this).attr('action')}`;
-  const method = $(this).attr('method');
-  const data = $(this).serialize();
+      const url = `${App.apiUrl}${$(this).attr('action')}`;
+      const method = $(this).attr('method');
+      const data = $(this).serialize();
 
-  return App.ajaxRequest(url, method, data, data => {
-    if (data.token) App.setToken(data.token);
-    App.loggedInState();
-  });
-};
+      return App.ajaxRequest(url, method, data, data => {
+        if (data.token) App.setToken(data.token);
+        App.loggedInState();
+      });
+    };
 
-App.ajaxRequest = function(url, method, data, callback) {
-  return $.ajax({
-    url,
-    method,
-    data,
-    beforeSend: this.setRequestHeader.bind(this)
-  })
-  .done(callback)
-  .fail(data => {
-    console.log(data);
-  });
-};
+    App.ajaxRequest = function(url, method, data, callback) {
+      return $.ajax({
+        url,
+        method,
+        data,
+        beforeSend: App.setRequestHeader.bind(this)
+      })
+      .done(callback)
+      .fail(data => {
+        console.log(data);
+      });
+    };
 
-App.setRequestHeader = function(xhr) {
-  return xhr.setRequestHeader('Authorization', 'Bearer ${this.getToken()}');
-};
+    App.setRequestHeader = function(xhr) {
+      console.log('setting header');
+      return xhr.setRequestHeader('Authorization', `Bearer ${this.getToken()}`);
+    };
 
-App.setToken = function(token) {
-  return window.localStorage.setItem('token', token);
-};
+    App.setToken = function(token) {
+      console.log('token set');
+      return window.localStorage.setItem('token', token);
+    };
 
-App.getToken = function() {
-  return window.localStorage.getItem('token');
-};
+    App.getToken = function() {
+      console.log('token got');
+      return window.localStorage.getItem('token');
+    };
 
-App.removeToken = function(){
-  return window.localStorage.clear();
-};
+    App.removeToken = function(){
+      console.log('token removed');
+      return window.localStorage.clear();
+    };
 
-$(App.init.bind(App));
+    $(App.init.bind(App));
