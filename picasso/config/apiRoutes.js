@@ -1,12 +1,16 @@
 const express = require('express');
 const router = express.Router();
 
-const staticsController = require('../controllers/statics');
 const artController = require('../controllers/arts');
 const authentications = require('../controllers/authentications');
 
-router.route('/')
-  .get(staticsController.home);
+router.route('/register')
+  .post(authentications.register);
 
+router.route('/login')
+  .post(authentications.login);
+
+router.route('/art')
+  .get(artController.index);
 
 module.exports = router;

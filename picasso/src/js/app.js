@@ -24,6 +24,10 @@ App.init = function() {
   $('.usersIndex').on('click', this.usersIndex.bind(this));
   this.$main.on('submit', 'form', this.handleForm);
 
+  // delegated event handeling
+
+  // add modal to div and hide it. then when clicked, show the model
+
   if (this.getToken()) {
     this.loggedInState();
   } else {
@@ -44,7 +48,7 @@ App.loggedOutState = function(){
 };
 
 App.register = function(e){
-  if(e) e.preventDefautl();
+  if(e) e.preventDefault();
   this.$main.html(`
     <h2>Register</h2>
     <form method="post" action="/register">
