@@ -15,23 +15,6 @@ App.mapSetup = function() {
 };
 
 App.addArt = function() {
-  // return App.ajaxRequest(`${App.apiUrl}/art`, 'GET', null, function(arts){
-  //   const geoCoder = new google.maps.Geocoder();
-  //   arts.forEach(function(art){
-  //     geoCoder.geocode({'location': art.location }, function(results, status) {
-  //       if (status === google.maps.GeocoderStatus.OK) {
-  //         const lat = results[0].geometry.location.lat();
-  //         const lng = results[0].geometry.location.lng();
-  //         const latlng = new google.maps.LatLng(lat, lng);
-  //         const marker = new google.maps.Marker({
-  //           position: latlng,
-  //           map: App.map,
-  //           animation: google.maps.Animation.DROP
-  //         });
-  //       }
-  //     });
-  //     App.addInfoWindow(art, marker);
-  //   });
   $.get({
     url: `${App.apiUrl}/art`,
     beforeSend: App.setRequestHeader.bind(App)
@@ -54,7 +37,7 @@ App.addArt = function() {
             App.addInfoWindow(art, marker);
           }
         });
-      }, 200*index);    
+      }, 200*index);
     });
   });
 };
@@ -62,10 +45,9 @@ App.addArt = function() {
 
 
 App.addInfoWindow = function(art, marker){
-
   google.maps.event.addListener(marker, 'click', () => {
     if (typeof this.infoWindow !== 'undefined')
-    this.infoWindow.close();
+      this.infoWindow.close();
     this.infoWindow = new google.maps.InfoWindow({
       content: `<p>${ art.location }</p>`
     });
@@ -80,7 +62,7 @@ App.init = function() {
   this.apiUrl = 'http://localhost:3000/api';
   this.$main = $('main');
   $('.register').on('click', this.register.bind(this));
-  $('.login').on('click', this.logout.bind(this));
+  $('.login').on('click', this.login.bind(this));
   $('.logout').on('click', this.logout.bind(this));
   // $('.usersIndex').on('click', this.artIndex.bind(this));
   this.$main.on('submit', 'form', this.handleForm);
@@ -113,7 +95,9 @@ App.loggedOutState = function(){
 
 App.register = function(e){
   if(e) e.preventDefault();
-  this.$main.html(`
+  $('.modal-content').html(`
+    <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
     <h2>Register</h2>
     <form method="post" action="/register">
     <div class="form-group">
@@ -131,14 +115,16 @@ App.register = function(e){
     <input class="btn btn-primary" type="submit" value="Register">
     </form>
     `);
-  };
+  $('.modal').modal('show');
+};
 
-  App.login = function(e) {
-    e.preventDefault();
-    this.$main.html(`
+App.login = function(e) {
+  e.preventDefault();
+  $('.modal-content').html(`
+      <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
       <h2>Login</h2>
       <form method="post" action="/login">
-      <div class="form-group">
       <input class="form-control" type="email" name="email" placeholder="Email">
       </div>
       <div class="form-group">
@@ -147,68 +133,72 @@ App.register = function(e){
       <input class="btn btn-primary" type="submit" value="Login">
       </form>
       `);
-    };
+  $('.modal').modal('show');
+};
 
-    App.logout = function(e){
-      e.preventDefault();
-      this.removeToken();
-      this.loggedOutState();
-    };
+App.logout = function(e){
+  e.preventDefault();
+  this.removeToken();
+  this.loggedOutState();
+};
 
-    App.artIndex = function(e) {
-      console.log('this is runningNow');
-      if (e) e.preventDefautl();
-      const url = `${this.apiUrl}/art`;
+App.artIndex = function(e) {
+  console.log('this is runningNow');
+  if (e) e.preventDefautl();
+  const url = `${this.apiUrl}/art`;
 
-      return this.ajaxRequest(url, 'get', null, data => {
-        console.log(data);
-      });
-    };
+  return this.ajaxRequest(url, 'get', null, data => {
+    console.log(data);
+  });
+};
 
-    App.handleForm = function(e){
-      e.preventDefault();
+App.handleForm = function(e){
+  e.preventDefault();
 
-      const url = `${App.apiUrl}${$(this).attr('action')}`;
-      const method = $(this).attr('method');
-      const data = $(this).serialize();
+  const url = `${App.apiUrl}${$(this).attr('action')}`;
+  const method = $(this).attr('method');
+  const data = $(this).serialize();
 
-      return App.ajaxRequest(url, method, data, data => {
-        if (data.token) App.setToken(data.token);
-        App.loggedInState();
-      });
-    };
+  return App.ajaxRequest(url, method, data, data => {
+    if (data.token) App.setToken(data.token);
+    App.loggedInState();
+  }
+  // $('.modal').modal('hide');
 
-    App.ajaxRequest = function(url, method, data, callback) {
-      return $.ajax({
-        url,
-        method,
-        data,
-        beforeSend: App.setRequestHeader.bind(this)
-      })
-      .done(callback)
-      .fail(data => {
-        console.log(data);
-      });
-    };
+);
+};
 
-    App.setRequestHeader = function(xhr) {
-      console.log('setting header');
-      return xhr.setRequestHeader('Authorization', `Bearer ${this.getToken()}`);
-    };
+App.ajaxRequest = function(url, method, data, callback) {
+  return $.ajax({
+    url,
+    method,
+    data,
+    beforeSend: App.setRequestHeader.bind(this)
+  })
+  .done(callback)
+  .fail(data => {
+    console.log(data);
+  });
+};
 
-    App.setToken = function(token) {
-      console.log('token set');
-      return window.localStorage.setItem('token', token);
-    };
+App.setRequestHeader = function(xhr) {
+  console.log('setting header');
+  return xhr.setRequestHeader('Authorization', `Bearer ${this.getToken()}`);
+};
 
-    App.getToken = function() {
-      console.log('token got');
-      return window.localStorage.getItem('token');
-    };
+App.setToken = function(token) {
+  console.log('token set');
+  return window.localStorage.setItem('token', token);
+};
 
-    App.removeToken = function(){
-      console.log('token removed');
-      return window.localStorage.clear();
-    };
+App.getToken = function() {
+  console.log('token got');
+  return window.localStorage.getItem('token');
+};
 
-    $(App.init.bind(App));
+App.removeToken = function(){
+  console.log('token removed');
+  return window.localStorage.clear();
+};
+
+$(App.init.bind(App));
