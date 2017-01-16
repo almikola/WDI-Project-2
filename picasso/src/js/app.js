@@ -16,7 +16,7 @@ App.mapSetup = function() {
 
 App.addArt = function() {
   $.get({
-    url: `${App.apiUrl}/art`,
+    url: `${App.apiUrl}/art/`,
     beforeSend: App.setRequestHeader.bind(App)
   }).done(data => {
     const geoCoder = new google.maps.Geocoder();
@@ -48,14 +48,27 @@ App.addInfoWindow = function(art, marker){
   google.maps.event.addListener(marker, 'click', () => {
     if (typeof this.infoWindow !== 'undefined')
       this.infoWindow.close();
+    var contentString = '';
+    contentString += `<h3>${ art.artStolen }</h3><br>
+    <p>Where: ${ art.location }</p><br>
+    <p>When: ${ art.year }</p><br>
+    <p>Worth: ${ art.worth }</p><br>
+    <p>Description: ${ art.description }</p><br>
+    <button class='showArt'>Find out more</button>`;
+
     this.infoWindow = new google.maps.InfoWindow({
-      content: `<p>${ art.location }</p>`
+      content: contentString
     });
+    // $('.showArt').on('click', (App.showArt.bind(this)));
     this.infoWindow.open(this.map, marker);
   });
+  $('main').on('click', '.showArt', App.showArt.bind(this));
 };
 
-// $(App.mapSetup.bind(App));
+
+App.showArt = function(art){
+  this.infoWindow.setContent(`<h3>${ art.artStolen }</h3>`);
+};
 
 
 App.init = function() {
@@ -65,11 +78,8 @@ App.init = function() {
   $('.login').on('click', this.login.bind(this));
   $('.logout').on('click', this.logout.bind(this));
   // $('.usersIndex').on('click', this.artIndex.bind(this));
-  this.$main.on('submit', 'form', this.handleForm);
+  $('.modal-content').on('submit', 'form', this.handleForm);
 
-  // delegated event handeling
-
-  // add modal to div and hide it. then when clicked, show the model
 
   if (this.getToken()) {
     this.loggedInState();
@@ -89,8 +99,8 @@ App.loggedInState = function() {
 
 App.loggedOutState = function(){
   $('.loggedIn').hide();
+  $('#map-canvas').hide();
   $('.loggedOut').show();
-  this.register();
 };
 
 App.register = function(e){
@@ -125,6 +135,7 @@ App.login = function(e) {
       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
       <h2>Login</h2>
       <form method="post" action="/login">
+      <div class="form-group">
       <input class="form-control" type="email" name="email" placeholder="Email">
       </div>
       <div class="form-group">
@@ -153,7 +164,9 @@ App.artIndex = function(e) {
 };
 
 App.handleForm = function(e){
+  console.log('should preventDefault');
   e.preventDefault();
+  $('.modal').modal('hide');
 
   const url = `${App.apiUrl}${$(this).attr('action')}`;
   const method = $(this).attr('method');
@@ -162,10 +175,7 @@ App.handleForm = function(e){
   return App.ajaxRequest(url, method, data, data => {
     if (data.token) App.setToken(data.token);
     App.loggedInState();
-  }
-  // $('.modal').modal('hide');
-
-);
+  });
 };
 
 App.ajaxRequest = function(url, method, data, callback) {

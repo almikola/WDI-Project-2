@@ -37,16 +37,6 @@ function runScrape(){
 
     }
 
-    // console.log(articles);
-    // const scrapedArticles = [];
-    // console.log(articles.length);
-    // articles.each((i, article) => {
-    //   console.log(article);
-    //   const scrapedArticle = {
-    //     title: $(article).find('.list-slide__title').text()
-    //   };
-    //   scrapedArticles.push(scrapedArticle);
-    // });
   }).catch(console.error);
 }
 

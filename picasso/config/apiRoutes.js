@@ -13,4 +13,7 @@ router.route('/login')
 router.route('/art')
   .get(artController.index);
 
+router.route('/art/:id')
+  .get(artController.show);
+
 module.exports = router;
