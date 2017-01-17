@@ -10,8 +10,7 @@ App.init = function() {
   $('.login').on('click', this.login.bind(this));
   $('.logout').on('click', this.logout.bind(this));
   $('.seeAll').on('click', this.seeAll.bind(this));
-  $('.filter-form').on('submit', this.filterMap);
-  $('.filter-form').on('submit', this.filterArtist);
+  $('.filter-map').on('submit', this.setFilter);
   $('.modal-content').on('submit', 'form', this.handleForm);
 
   if (this.getToken()) {
@@ -26,60 +25,60 @@ App.init = function() {
 App.register = function(e){
   if(e) e.preventDefault();
   $('.modal-content').html(`
-      <form method="post" action="/register">
+    <form method="post" action="/register">
+    <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    <h4 class="modal-title">Register</h4>
+    </div>
+    <div class="modal-body">
+    <div class="form-group">
+    <input class="form-control" type="text" name="user[username]" placeholder="Username">
+    </div>
+    <div class="form-group">
+    <input class="form-control" type="email" name="user[email]" placeholder="Email">
+    </div>
+    <div class="form-group">
+    <input class="form-control" type="password" name="user[password]" placeholder="Password">
+    </div>
+    <div class="form-group">
+    <input class="form-control" type="password" name="user[passwordConfirmation]" placeholder="Password Confirmation">
+    </div>
+    </div>
+    <div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+    <input class="btn btn-primary" type="submit" value="Register">
+    </div>
+    </form>`);
+  $('.modal').modal('show');
+};
+
+  // - LOGGING IN ----------------------------------------
+
+App.login = function(e) {
+  e.preventDefault();
+  $('.modal-content').html(`
+      <form method="post" action="/login">
       <div class="modal-header">
       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-      <h4 class="modal-title">Register</h4>
+      <h4 class="modal-title">Login</h4>
       </div>
       <div class="modal-body">
       <div class="form-group">
-      <input class="form-control" type="text" name="user[username]" placeholder="Username">
+      <input class="form-control" type="email" name="email" placeholder="Email">
       </div>
       <div class="form-group">
-      <input class="form-control" type="email" name="user[email]" placeholder="Email">
-      </div>
-      <div class="form-group">
-      <input class="form-control" type="password" name="user[password]" placeholder="Password">
-      </div>
-      <div class="form-group">
-      <input class="form-control" type="password" name="user[passwordConfirmation]" placeholder="Password Confirmation">
+      <input class="form-control" type="password" name="password" placeholder="Password">
       </div>
       </div>
       <div class="modal-footer">
       <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-      <input class="btn btn-primary" type="submit" value="Register">
+      <input class="btn btn-primary" type="submit" value="Login">
       </div>
       </form>`);
   $('.modal').modal('show');
 };
 
-// - LOGGING IN ----------------------------------------
-
-App.login = function(e) {
-  e.preventDefault();
-  $('.modal-content').html(`
-        <form method="post" action="/login">
-        <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">Login</h4>
-        </div>
-        <div class="modal-body">
-        <div class="form-group">
-        <input class="form-control" type="email" name="email" placeholder="Email">
-        </div>
-        <div class="form-group">
-        <input class="form-control" type="password" name="password" placeholder="Password">
-        </div>
-        </div>
-        <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <input class="btn btn-primary" type="submit" value="Login">
-        </div>
-        </form>`);
-  $('.modal').modal('show');
-};
-
-// - LOG OUT -----------------------------------------------
+    // - LOG OUT -----------------------------------------------
 
 App.logout = function(e){
   e.preventDefault();
@@ -87,7 +86,7 @@ App.logout = function(e){
   this.loggedOutState();
 };
 
-// - TOKEN -------------------------------------------------
+    // - TOKEN -------------------------------------------------
 
 App.handleForm = function(e){
   console.log('should preventDefault');
@@ -111,10 +110,10 @@ App.ajaxRequest = function(url, method, data, callback) {
     data,
     beforeSend: App.setRequestHeader.bind(this)
   })
-        .done(callback)
-        .fail(data => {
-          console.log(data);
-        });
+      .done(callback)
+      .fail(data => {
+        console.log(data);
+      });
 };
 
 App.setRequestHeader = function(xhr) {
@@ -138,7 +137,7 @@ App.removeToken = function(){
 };
 
 
-// - STATES --------------------------------------------------
+    // - STATES --------------------------------------------------
 
 App.loggedInState = function() {
   console.log('loggedin');
@@ -154,7 +153,7 @@ App.loggedOutState = function(){
   $('.loggedOut').show();
 };
 
-// - MAKE THE MAP ----------------------------------------------------------
+    // - MAKE THE MAP ----------------------------------------------------------
 
 App.mapSetup = function() {
   App.apiUrl = 'http://localhost:3000/api';
@@ -351,7 +350,7 @@ App.addArt = function() {
     url: `${App.apiUrl}/art/`,
     beforeSend: App.setRequestHeader.bind(App)
   }).done(data => {
-    // App.johnnieTest = data;
+        // App.johnnieTest = data;
     const geoCoder = new google.maps.Geocoder();
     $.each(data.arts, function(index, art){
       setTimeout(function(){
@@ -385,31 +384,31 @@ App.addModalWindow = function(art, marker){
   google.maps.event.addListener(marker, 'click', () => {
     if ($('.modal').is(':visible')) $('.modal').modal('hide');
     $('.modal-content').html(`
-      <div class="modal-header">
-      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-      <p class="modal-title"><strong>${art.artStolen.replace(/\n/g, '<br>').replace(/'G<br>'/g, 'G.')}</strong></p>
-      </div>
-      <div class="modal-body">
-      <img src="${art.image}"></ br>
-      <ul class="list-inline">
-      <li><strong>Where:</strong> ${art.location}</li>
-      <li><strong>When:</strong> ${art.year}</li>
-      <li><strong>Worth:</strong> ${art.worth}</li>
-      </ul>
-      <p>${art.description}</p>
-      </div>
-      <div class="modal-footer">
-      <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <p class="modal-title"><strong>${art.artStolen.replace(/\n/g, '<br>').replace(/'G<br>'/g, 'G.')}</strong></p>
+          </div>
+          <div class="modal-body">
+          <img src="${art.image}"></ br>
+          <ul class="list-inline">
+          <li><strong>Where:</strong> ${art.location}</li>
+          <li><strong>When:</strong> ${art.year}</li>
+          <li><strong>Worth:</strong> ${art.worth}</li>
+          </ul>
+          <p>${art.description}</p>
+          </div>
+          <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
 
-      </div>
-      `);
+          </div>
+          `);
     $('.modal').modal('show');
   });
 };
 
 App.showArt = function(art){
   this.infoWindow.setContent(`<h3>${ art.artStolen }</h3>`);
-};
+    };
 
 App.seeAll = function(){
   $('.country').val('');
@@ -426,7 +425,7 @@ App.artIndex = function(e) {
   });
 };
 
-// - REMOVER MARKERS ----------------------------------------------
+      // - REMOVER MARKERS ----------------------------------------------
 
 App.removeMarkers = function() {
   $.each(App.markers, (index, marker) => {
@@ -434,22 +433,35 @@ App.removeMarkers = function() {
   });
 };
 
-// - SEARCH FUNCTION ----------------------------------------------
+      // - SEARCH FUNCTION ----------------------------------------------
 
-App.filterMap = function(e) {
+App.setFilter = function(e) {
   if (e) e.preventDefault();
-  let hold;
-  const filter       = $('.country').val().charAt(0).toUpperCase() + $('.country').val().slice(1);
-  if ($('.country').val()){
-    hold = App.data.filter(art => {
-      if(art.location.split(', ')[1] === filter) return art;
-    });
-  } else {
-    hold = App.data;
-  }
-  const filteredData = hold;
 
-  $('.country').val('');
+  if ($('.country').val() || $('.artist').val()) {
+    if($('.country').val()) {
+      console.log('country');
+      const input = $('.country').val();
+      App.filterMap(input, 'location');
+    } else {
+      console.log('artist');
+      const input = $('.artist').val();
+      App.filterMap(input, 'artStolen');
+    }
+  }
+};
+
+App.filterMap = function(input, field) {
+  $('.artist, .country').val('');
+
+  const filter       = input.charAt(0).toUpperCase() + input.slice(1).toLowerCase();
+  const filteredData = App.data.filter(art => {
+    if (field === 'location') {
+      if(art.location.split(', ')[1] === filter) return art;
+    } else {
+      if(art.artStolen.includes(filter)) return art;
+    }
+  });
 
   App.removeMarkers();
 
@@ -462,44 +474,11 @@ App.filterMap = function(e) {
         scaledSize: new google.maps.Size(50, 50)
       }
     });
+
     App.markers.push(marker);
     console.log(art);
     App.addModalWindow(art, marker);
   });
 };
-
-App.filterArtist = function(e) {
-  if (e) e.preventDefault();
-  let hold;
-  const filter       = $('.artist').val().charAt(0).toUpperCase() + $('.artist').val().slice(1);
-  if ($('.artist').val()){
-    hold = App.data.filter(art => {
-      if(art.location.split(', ')[1] === filter) return art;
-    });
-  } else {
-    hold = App.data;
-  }
-  const filteredData = hold;
-
-  $('.artist').val('');
-
-  App.removeMarkers();
-
-  $.each(filteredData, (index, art) => {
-    const marker = new google.maps.Marker({
-      position: new google.maps.LatLng(art.lat, art.lng),
-      map: App.map,
-      icon: {
-        url: '/images/paintbrush.png',
-        scaledSize: new google.maps.Size(50, 50)
-      }
-    });
-    App.markers.push(marker);
-    console.log(art);
-    App.addModalWindow(art, marker);
-  });
-};
-
-
 
 $(App.init.bind(App));
