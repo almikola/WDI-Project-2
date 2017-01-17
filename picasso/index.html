@@ -32,6 +32,12 @@
 
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <form class="filter-form navbar-form navbar-left loggedIn">
+            <div class="form-group">
+              <input type="text" name="filter" class="form-control filter" placeholder="Search By Country">
+            </div>
+            <button type="submit" class="btn btn-default">Submit</button>
+          </form>
           <ul class="nav navbar-nav navbar-right">
             <li class="nav-item">
               <a class="nav-link register loggedOut">Register</a>
@@ -48,13 +54,22 @@
     </nav>
   </header>
   <main>
-    <div id="map-canvas"></div>
-  </main>
-  <div class="modal fade" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-      </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-  </div><!-- /.modal -->
+    <!-- <div id="search-function">
+    <form class="form-inline">
+    <div class="form-group">
+    <label class="keyword" for="keyword">Keyword</label>
+    <input type="textbox" class="form-control" id="keyword" placeholder="keyword">
+  </div>
+  <button type="submit" class="btn btn-default">Search</button>
+</form>
+</div> -->
+<div id="map-canvas"></div>
+</main>
+<div class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
 </body>
 </html>

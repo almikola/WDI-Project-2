@@ -3,6 +3,8 @@ const google = google;
 
 App.mapSetup = function() {
   App.apiUrl = 'http://localhost:3000/api';
+  App.data = [];
+  App.markers = [];
   const canvas = document.getElementById('map-canvas');
   const mapOptions = {
     zoom: 3,
@@ -197,19 +199,30 @@ App.addArt = function() {
     App.johnnieTest = data;
     const geoCoder = new google.maps.Geocoder();
     $.each(data.arts, function(index, art){
-      // console.log(art);
       setTimeout(function(){
         geoCoder.geocode({'address': art.location }, function(results, status) {
           if (status === google.maps.GeocoderStatus.OK) {
-            const lat = results[0].geometry.location.lat();
-            const lng = results[0].geometry.location.lng();
-            const latlng = new google.maps.LatLng(lat, lng);
+            art.lat = results[0].geometry.location.lat();
+            art.lng = results[0].geometry.location.lng();
+            const latlng = new google.maps.LatLng(art.lat, art.lng);
+
+            // var icon = {
+            //   url: '/images/paintbrush.png',
+            //   scaledSize: new google.maps.Size(50, 50)
+            // };
+
             const marker = new google.maps.Marker({
               position: latlng,
               map: App.map,
               animation: google.maps.Animation.DROP,
-              label: `${art.worth}`
+              label: `${art.worth}`,
+              icon: {
+                url: '/images/paintbrush.png',
+                scaledSize: new google.maps.Size(50, 50)
+              }
             });
+            App.markers.push(marker);
+            App.data.push(art);
             App.addModalWindow(art, marker);
           }
         });
@@ -223,28 +236,27 @@ App.addModalWindow = function(art, marker){
     if ($('.modal').is(':visible')) $('.modal').modal('hide');
     $('.modal-content').html(`
       <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <p class="modal-title"><strong>${art.artStolen.replace(/\n/g, '<br>').replace(/'G<br>'/g, 'G.')}</strong></p>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <p class="modal-title"><strong>${art.artStolen.replace(/\n/g, '<br>').replace(/'G<br>'/g, 'G.')}</strong></p>
       </div>
       <div class="modal-body">
-        <img src="${art.image}"></ br>
-        <ul class="list-inline">
-          <li><strong>Where:</strong> ${art.location}</li>
-          <li><strong>When:</strong> ${art.year}</li>
-          <li><strong>Worth:</strong> ${art.worth}</li>
-        </ul>
-        <p>${art.description}</p>
+      <img src="${art.image}"></ br>
+      <ul class="list-inline">
+      <li><strong>Where:</strong> ${art.location}</li>
+      <li><strong>When:</strong> ${art.year}</li>
+      <li><strong>Worth:</strong> ${art.worth}</li>
+      </ul>
+      <p>${art.description}</p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
 
       </div>
-    `);
+      `);
     $('.modal').modal('show');
   });
 };
 
-// <button type="button" class="btn btn-primary">Save changes</button>
 
 App.showArt = function(art){
   this.infoWindow.setContent(`<h3>${ art.artStolen }</h3>`);
@@ -256,7 +268,8 @@ App.init = function() {
   $('.register').on('click', this.register.bind(this));
   $('.login').on('click', this.login.bind(this));
   $('.logout').on('click', this.logout.bind(this));
-  // $('.usersIndex').on('click', this.artIndex.bind(this));
+    // $('.usersIndex').on('click', this.artIndex.bind(this));
+  $('.filter-form').on('submit', this.filterMap);
   $('.modal-content').on('submit', 'form', this.handleForm);
 
   if (this.getToken()) {
@@ -270,68 +283,70 @@ App.loggedInState = function() {
   console.log('loggedin');
   $('.loggedIn').show();
   $('.loggedOut').hide();
-  // this.artIndex();
+    // this.artIndex();
   this.$main.html('<div id="map-canvas"></div>');
+    // this.$main.html('<div id="search-function"></div>');
   App.mapSetup();
 };
 
 App.loggedOutState = function(){
   $('.loggedIn').hide();
   $('#map-canvas').hide();
+    // $('#search-function').hide();
   $('.loggedOut').show();
 };
 
 App.register = function(e){
   if(e) e.preventDefault();
   $('.modal-content').html(`
-    <form method="post" action="/register">
+      <form method="post" action="/register">
       <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">Register</h4>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <h4 class="modal-title">Register</h4>
       </div>
       <div class="modal-body">
-        <div class="form-group">
-          <input class="form-control" type="text" name="user[username]" placeholder="Username">
-        </div>
-        <div class="form-group">
-          <input class="form-control" type="email" name="user[email]" placeholder="Email">
-        </div>
-        <div class="form-group">
-          <input class="form-control" type="password" name="user[password]" placeholder="Password">
-        </div>
-        <div class="form-group">
-          <input class="form-control" type="password" name="user[passwordConfirmation]" placeholder="Password Confirmation">
-        </div>
+      <div class="form-group">
+      <input class="form-control" type="text" name="user[username]" placeholder="Username">
+      </div>
+      <div class="form-group">
+      <input class="form-control" type="email" name="user[email]" placeholder="Email">
+      </div>
+      <div class="form-group">
+      <input class="form-control" type="password" name="user[password]" placeholder="Password">
+      </div>
+      <div class="form-group">
+      <input class="form-control" type="password" name="user[passwordConfirmation]" placeholder="Password Confirmation">
+      </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <input class="btn btn-primary" type="submit" value="Register">
+      <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      <input class="btn btn-primary" type="submit" value="Register">
       </div>
-    </form>`);
+      </form>`);
   $('.modal').modal('show');
 };
 
 App.login = function(e) {
   e.preventDefault();
   $('.modal-content').html(`
-  <form method="post" action="/login">
-    <div class="modal-header">
-      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-      <h4 class="modal-title">Login</h4>
-    </div>
-    <div class="modal-body">
-      <div class="form-group">
+        <form method="post" action="/login">
+        <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Login</h4>
+        </div>
+        <div class="modal-body">
+        <div class="form-group">
         <input class="form-control" type="email" name="email" placeholder="Email">
-      </div>
-      <div class="form-group">
+        </div>
+        <div class="form-group">
         <input class="form-control" type="password" name="password" placeholder="Password">
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-      <input class="btn btn-primary" type="submit" value="Login">
-    </div>
-  </form>`);
+        </div>
+        </div>
+        <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <input class="btn btn-primary" type="submit" value="Login">
+        </div>
+        </form>`);
   $('.modal').modal('show');
 };
 
@@ -366,6 +381,36 @@ App.handleForm = function(e){
   });
 };
 
+App.removeMarkers = function() {
+  $.each(App.markers, (index, marker) => {
+    marker.setMap(null);
+  });
+};
+
+App.filterMap = function(e) {
+  e.preventDefault();
+  const filter       = $('.filter').val().charAt(0).toUpperCase() + $('.filter').val().slice(1);
+  const filteredData = App.data.filter(art => {
+    if(art.location.split(', ')[1] === filter) return art;
+  });
+
+  $('.filter').val('');
+
+  App.removeMarkers();
+
+  $.each(filteredData, (index, art) => {
+    new google.maps.Marker({
+      position: new google.maps.LatLng(art.lat, art.lng),
+      map: App.map,
+      label: `${art.worth}`,
+      icon: {
+        url: '/images/paintbrush.png',
+        scaledSize: new google.maps.Size(50, 50)
+      }
+    });
+  });
+};
+
 App.ajaxRequest = function(url, method, data, callback) {
   return $.ajax({
     url,
@@ -373,10 +418,10 @@ App.ajaxRequest = function(url, method, data, callback) {
     data,
     beforeSend: App.setRequestHeader.bind(this)
   })
-  .done(callback)
-  .fail(data => {
-    console.log(data);
-  });
+        .done(callback)
+        .fail(data => {
+          console.log(data);
+        });
 };
 
 App.setRequestHeader = function(xhr) {

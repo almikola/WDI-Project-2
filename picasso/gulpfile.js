@@ -38,7 +38,7 @@ gulp.task('fonts', () => {
     .pipe(browserSync.stream());
 });
 
-gulp.task('serve', ['es6', 'sass'], () => {
+gulp.task('serve', ['es6', 'sass', 'images', 'fonts'], () => {
   browserSync.init({
     proxy: 'http://localhost:3000',
     files: ['public/**/*.*'],
@@ -51,7 +51,7 @@ gulp.task('serve', ['es6', 'sass'], () => {
     .on('start', () => browserSync.reload());
 });
 
-gulp.task('default', ['sass', 'es6', 'images', 'fonts', 'serve'], () => {
+gulp.task('default', ['serve'], () => {
   gulp.watch('src/scss/**/*.scss', ['sass']);
   gulp.watch('src/js/*.js', ['es6']);
   gulp.watch('src/images/**/*.{png,jpg,jpeg,gif,ico}', ['images']);
