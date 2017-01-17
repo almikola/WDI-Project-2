@@ -1,14 +1,189 @@
 const App = App || {};
 const google = google;
 
-
 App.mapSetup = function() {
   App.apiUrl = 'http://localhost:3000/api';
   const canvas = document.getElementById('map-canvas');
   const mapOptions = {
     zoom: 3,
     center: new google.maps.LatLng(51.506178,-0.088369),
-    mapTypeId: google.maps.MapTypeId.ROADMAP
+    mapTypeId: google.maps.MapTypeId.ROADMAP,
+    styles: [
+      {
+        'featureType': 'water',
+        'elementType': 'geometry',
+        'stylers': [
+          {
+            'color': '#e9e9e9'
+          },
+          {
+            'lightness': 17
+          }
+        ]
+      },
+      {
+        'featureType': 'landscape',
+        'elementType': 'geometry',
+        'stylers': [
+          {
+            'color': '#f5f5f5'
+          },
+          {
+            'lightness': 20
+          }
+        ]
+      },
+      {
+        'featureType': 'road.highway',
+        'elementType': 'geometry.fill',
+        'stylers': [
+          {
+            'color': '#ffffff'
+          },
+          {
+            'lightness': 17
+          }
+        ]
+      },
+      {
+        'featureType': 'road.highway',
+        'elementType': 'geometry.stroke',
+        'stylers': [
+          {
+            'color': '#ffffff'
+          },
+          {
+            'lightness': 29
+          },
+          {
+            'weight': 0.2
+          }
+        ]
+      },
+      {
+        'featureType': 'road.arterial',
+        'elementType': 'geometry',
+        'stylers': [
+          {
+            'color': '#ffffff'
+          },
+          {
+            'lightness': 18
+          }
+        ]
+      },
+      {
+        'featureType': 'road.local',
+        'elementType': 'geometry',
+        'stylers': [
+          {
+            'color': '#ffffff'
+          },
+          {
+            'lightness': 16
+          }
+        ]
+      },
+      {
+        'featureType': 'poi',
+        'elementType': 'geometry',
+        'stylers': [
+          {
+            'color': '#f5f5f5'
+          },
+          {
+            'lightness': 21
+          }
+        ]
+      },
+      {
+        'featureType': 'poi.park',
+        'elementType': 'geometry',
+        'stylers': [
+          {
+            'color': '#dedede'
+          },
+          {
+            'lightness': 21
+          }
+        ]
+      },
+      {
+        'elementType': 'labels.text.stroke',
+        'stylers': [
+          {
+            'visibility': 'on'
+          },
+          {
+            'color': '#ffffff'
+          },
+          {
+            'lightness': 16
+          }
+        ]
+      },
+      {
+        'elementType': 'labels.text.fill',
+        'stylers': [
+          {
+            'saturation': 36
+          },
+          {
+            'color': '#333333'
+          },
+          {
+            'lightness': 40
+          }
+        ]
+      },
+      {
+        'elementType': 'labels.icon',
+        'stylers': [
+          {
+            'visibility': 'off'
+          }
+        ]
+      },
+      {
+        'featureType': 'transit',
+        'elementType': 'geometry',
+        'stylers': [
+          {
+            'color': '#f2f2f2'
+          },
+          {
+            'lightness': 19
+          }
+        ]
+      },
+      {
+        'featureType': 'administrative',
+        'elementType': 'geometry.fill',
+        'stylers': [
+          {
+            'color': '#fefefe'
+          },
+          {
+            'lightness': 20
+          }
+        ]
+      },
+      {
+        'featureType': 'administrative',
+        'elementType': 'geometry.stroke',
+        'stylers': [
+          {
+            'color': '#fefefe'
+          },
+          {
+            'lightness': 17
+          },
+          {
+            'weight': 1.2
+          }
+        ]
+      }
+    ]
   };
   this.map = new google.maps.Map(canvas, mapOptions);
   this.addArt();
@@ -19,9 +194,10 @@ App.addArt = function() {
     url: `${App.apiUrl}/art/`,
     beforeSend: App.setRequestHeader.bind(App)
   }).done(data => {
+    App.johnnieTest = data;
     const geoCoder = new google.maps.Geocoder();
     $.each(data.arts, function(index, art){
-      console.log(art);
+      // console.log(art);
       setTimeout(function(){
         geoCoder.geocode({'address': art.location }, function(results, status) {
           if (status === google.maps.GeocoderStatus.OK) {
@@ -31,10 +207,10 @@ App.addArt = function() {
             const marker = new google.maps.Marker({
               position: latlng,
               map: App.map,
-              animation: google.maps.Animation.DROP
+              animation: google.maps.Animation.DROP,
+              label: `${art.worth}`
             });
-
-            App.addInfoWindow(art, marker);
+            App.addModalWindow(art, marker);
           }
         });
       }, 200*index);
@@ -42,34 +218,37 @@ App.addArt = function() {
   });
 };
 
-
-
-App.addInfoWindow = function(art, marker){
+App.addModalWindow = function(art, marker){
   google.maps.event.addListener(marker, 'click', () => {
-    if (typeof this.infoWindow !== 'undefined')
-      this.infoWindow.close();
-    var contentString = '';
-    contentString += `<h3>${ art.artStolen }</h3><br>
-    <p>Where: ${ art.location }</p><br>
-    <p>When: ${ art.year }</p><br>
-    <p>Worth: ${ art.worth }</p><br>
-    <p>Description: ${ art.description }</p><br>
-    <button class='showArt'>Find out more</button>`;
+    if ($('.modal').is(':visible')) $('.modal').modal('hide');
+    $('.modal-content').html(`
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <p class="modal-title"><strong>${art.artStolen.replace(/\n/g, '<br>').replace(/'G<br>'/g, 'G.')}</strong></p>
+      </div>
+      <div class="modal-body">
+        <img src="${art.image}"></ br>
+        <ul class="list-inline">
+          <li><strong>Where:</strong> ${art.location}</li>
+          <li><strong>When:</strong> ${art.year}</li>
+          <li><strong>Worth:</strong> ${art.worth}</li>
+        </ul>
+        <p>${art.description}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
 
-    this.infoWindow = new google.maps.InfoWindow({
-      content: contentString
-    });
-    // $('.showArt').on('click', (App.showArt.bind(this)));
-    this.infoWindow.open(this.map, marker);
+      </div>
+    `);
+    $('.modal').modal('show');
   });
-  $('main').on('click', '.showArt', App.showArt.bind(this));
 };
 
+// <button type="button" class="btn btn-primary">Save changes</button>
 
 App.showArt = function(art){
   this.infoWindow.setContent(`<h3>${ art.artStolen }</h3>`);
 };
-
 
 App.init = function() {
   this.apiUrl = 'http://localhost:3000/api';
@@ -79,7 +258,6 @@ App.init = function() {
   $('.logout').on('click', this.logout.bind(this));
   // $('.usersIndex').on('click', this.artIndex.bind(this));
   $('.modal-content').on('submit', 'form', this.handleForm);
-
 
   if (this.getToken()) {
     this.loggedInState();
@@ -106,44 +284,54 @@ App.loggedOutState = function(){
 App.register = function(e){
   if(e) e.preventDefault();
   $('.modal-content').html(`
-    <div class="modal-header">
-    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-    <h2>Register</h2>
     <form method="post" action="/register">
-    <div class="form-group">
-    <input class="form-control" type="text" name="user[username]" placeholder="Username">
-    </div>
-    <div class="form-group">
-    <input class="form-control" type="email" name="user[email]" placeholder="Email">
-    </div>
-    <div class="form-group">
-    <input class="form-control" type="password" name="user[password]" placeholder="Password">
-    </div>
-    <div class="form-group">
-    <input class="form-control" type="password" name="user[passwordConfirmation]" placeholder="Password Confirmation">
-    </div>
-    <input class="btn btn-primary" type="submit" value="Register">
-    </form>
-    `);
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Register</h4>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <input class="form-control" type="text" name="user[username]" placeholder="Username">
+        </div>
+        <div class="form-group">
+          <input class="form-control" type="email" name="user[email]" placeholder="Email">
+        </div>
+        <div class="form-group">
+          <input class="form-control" type="password" name="user[password]" placeholder="Password">
+        </div>
+        <div class="form-group">
+          <input class="form-control" type="password" name="user[passwordConfirmation]" placeholder="Password Confirmation">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <input class="btn btn-primary" type="submit" value="Register">
+      </div>
+    </form>`);
   $('.modal').modal('show');
 };
 
 App.login = function(e) {
   e.preventDefault();
   $('.modal-content').html(`
-      <div class="modal-header">
+  <form method="post" action="/login">
+    <div class="modal-header">
       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-      <h2>Login</h2>
-      <form method="post" action="/login">
+      <h4 class="modal-title">Login</h4>
+    </div>
+    <div class="modal-body">
       <div class="form-group">
-      <input class="form-control" type="email" name="email" placeholder="Email">
+        <input class="form-control" type="email" name="email" placeholder="Email">
       </div>
       <div class="form-group">
-      <input class="form-control" type="password" name="password" placeholder="Password">
+        <input class="form-control" type="password" name="password" placeholder="Password">
       </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
       <input class="btn btn-primary" type="submit" value="Login">
-      </form>
-      `);
+    </div>
+  </form>`);
   $('.modal').modal('show');
 };
 

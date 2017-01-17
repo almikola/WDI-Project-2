@@ -1,9 +1,109 @@
-body {
+$white: #fff;
+$grey: #eee;
+$black: #111;
+$blue: #0243b0;
+$orange: #ff8600;
+
+html, body {
   margin: 0;
+  padding: 0;
+  background: $blue;
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  font-family: "Helvetica Neue", Helvetica, sans-serif;
 }
 
 #map-canvas {
   width: 100%;
   height: 100vh;
   margin: 0 auto;
+}
+
+// ----------------------------------------------------------------------
+// Navbar
+
+.navbar {
+  background: $white;
+  border-bottom: 1px solid $black;
+  border-radius: 0;
+  margin: 0;
+  border-left: 0;
+  border-right: 0;
+  border-top: 0;
+}
+
+.navbar-default .navbar-brand {
+  color: $black;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.navbar-default .navbar-toggle {
+  background-color: $white;
+  border-color: $white;
+}
+
+.navbar-default .navbar-toggle .icon-bar {
+  background-color: $black;
+}
+
+.navbar-default .navbar-nav>li>a {
+  color: $black;
+}
+
+.title {
+  margin: 0;
+  display: inline block; // not sure how to get this on the same line at the same height
+  color: $black;
+  line-height: 50px;
+  font-weight: 300;
+}
+
+// ----------------------------------------------------------------------
+// Buttons
+
+.btn {
+  border-radius: 0;
+}
+
+.btn-primary {
+  background: $blue;
+  border: 2px solid $black;
+}
+
+// ----------------------------------------------------------------------
+// Forms
+
+.form-control {
+  border-radius: 0;
+  box-shadow: 0;
+  border: 1px solid $black;
+}
+
+// ----------------------------------------------------------------------
+// Modals
+
+.modal-content {
+  border-radius: 0;
+  text-align: center;
+}
+
+.modal-title {
+  color: $black;
+  text-transform: uppercase;
+}
+
+.modal-backdrop {
+  background: $orange;
+}
+
+.modal-backdrop.in {
+  opacity: .8;
+}
+
+img {
+  width: 75%;
 }
