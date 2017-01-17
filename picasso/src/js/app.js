@@ -11,6 +11,7 @@ App.init = function() {
   $('.logout').on('click', this.logout.bind(this));
   $('.seeAll').on('click', this.seeAll.bind(this));
   $('.filter-form').on('submit', this.filterMap);
+  $('.filter-form').on('submit', this.filterArtist);
   $('.modal-content').on('submit', 'form', this.handleForm);
 
   if (this.getToken()) {
@@ -87,6 +88,21 @@ App.logout = function(e){
 };
 
 // - TOKEN -------------------------------------------------
+
+App.handleForm = function(e){
+  console.log('should preventDefault');
+  e.preventDefault();
+  $('.modal').modal('hide');
+
+  const url = `${App.apiUrl}${$(this).attr('action')}`;
+  const method = $(this).attr('method');
+  const data = $(this).serialize();
+
+  return App.ajaxRequest(url, method, data, data => {
+    if (data.token) App.setToken(data.token);
+    App.loggedInState();
+  });
+};
 
 App.ajaxRequest = function(url, method, data, callback) {
   return $.ajax({
@@ -396,7 +412,7 @@ App.showArt = function(art){
 };
 
 App.seeAll = function(){
-  $('.filter').val('');
+  $('.country').val('');
   App.filterMap();
 };
 
@@ -410,22 +426,7 @@ App.artIndex = function(e) {
   });
 };
 
-// - SEARCH FUNCTION ----------------------------------------------
-
-App.handleForm = function(e){
-  console.log('should preventDefault');
-  e.preventDefault();
-  $('.modal').modal('hide');
-
-  const url = `${App.apiUrl}${$(this).attr('action')}`;
-  const method = $(this).attr('method');
-  const data = $(this).serialize();
-
-  return App.ajaxRequest(url, method, data, data => {
-    if (data.token) App.setToken(data.token);
-    App.loggedInState();
-  });
-};
+// - REMOVER MARKERS ----------------------------------------------
 
 App.removeMarkers = function() {
   $.each(App.markers, (index, marker) => {
@@ -433,11 +434,13 @@ App.removeMarkers = function() {
   });
 };
 
+// - SEARCH FUNCTION ----------------------------------------------
+
 App.filterMap = function(e) {
   if (e) e.preventDefault();
   let hold;
-  const filter       = $('.filter').val().charAt(0).toUpperCase() + $('.filter').val().slice(1);
-  if ($('.filter').val()){
+  const filter       = $('.country').val().charAt(0).toUpperCase() + $('.country').val().slice(1);
+  if ($('.country').val()){
     hold = App.data.filter(art => {
       if(art.location.split(', ')[1] === filter) return art;
     });
@@ -446,7 +449,7 @@ App.filterMap = function(e) {
   }
   const filteredData = hold;
 
-  $('.filter').val('');
+  $('.country').val('');
 
   App.removeMarkers();
 
@@ -454,7 +457,6 @@ App.filterMap = function(e) {
     const marker = new google.maps.Marker({
       position: new google.maps.LatLng(art.lat, art.lng),
       map: App.map,
-      // label: `${art.worth}`,
       icon: {
         url: '/images/paintbrush.png',
         scaledSize: new google.maps.Size(50, 50)
@@ -465,6 +467,39 @@ App.filterMap = function(e) {
     App.addModalWindow(art, marker);
   });
 };
+
+App.filterArtist = function(e) {
+  if (e) e.preventDefault();
+  let hold;
+  const filter       = $('.artist').val().charAt(0).toUpperCase() + $('.artist').val().slice(1);
+  if ($('.artist').val()){
+    hold = App.data.filter(art => {
+      if(art.location.split(', ')[1] === filter) return art;
+    });
+  } else {
+    hold = App.data;
+  }
+  const filteredData = hold;
+
+  $('.artist').val('');
+
+  App.removeMarkers();
+
+  $.each(filteredData, (index, art) => {
+    const marker = new google.maps.Marker({
+      position: new google.maps.LatLng(art.lat, art.lng),
+      map: App.map,
+      icon: {
+        url: '/images/paintbrush.png',
+        scaledSize: new google.maps.Size(50, 50)
+      }
+    });
+    App.markers.push(marker);
+    console.log(art);
+    App.addModalWindow(art, marker);
+  });
+};
+
 
 
 $(App.init.bind(App));
