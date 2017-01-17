@@ -408,11 +408,14 @@ App.addModalWindow = function(art, marker){
 
 App.showArt = function(art){
   this.infoWindow.setContent(`<h3>${ art.artStolen }</h3>`);
-    };
+};
+
+      // - SEE ALL FUNCTION -----------------------------------------------
 
 App.seeAll = function(){
   $('.country').val('');
-  App.filterMap();
+  $('.artist').val('');
+  App.addArt();
 };
 
 App.artIndex = function(e) {
