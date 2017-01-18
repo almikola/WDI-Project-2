@@ -143,6 +143,7 @@ App.loggedInState = function() {
   console.log('loggedin');
   $('.loggedIn').show();
   $('.loggedOut').hide();
+  $('#update').addClass('blue');
   this.$main.html('<div id="map-canvas"></div>');
   App.mapSetup();
 };
@@ -151,6 +152,7 @@ App.loggedOutState = function(){
   $('.loggedIn').hide();
   $('#map-canvas').hide();
   $('.loggedOut').show();
+  $('#update').removeClass('blue');
 };
 
     // - MAKE THE MAP ----------------------------------------------------------

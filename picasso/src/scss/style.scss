@@ -1,13 +1,14 @@
 $white: #fff;
 $grey: #eee;
 $black: #111;
-$blue: #0243b0;
-$orange: #e89f30;
+$blue: #003554;
+$lightblue: #30ADF2;
+$fadeblue: #73AAC4;
 
 html, body {
   margin: 0;
   padding: 0;
-  background: $blue;
+  background: linear-gradient(to bottom right, $blue, $lightblue);
   height: 100%;
   width: 100%;
 }
@@ -24,6 +25,10 @@ body {
 
 // ----------------------------------------------------------------------
 // Navbar
+
+// nav#update.navbar.navbar-default.blue {
+//   background-color: $blue;
+// }
 
 .navbar {
   background: $white;
@@ -66,6 +71,7 @@ body {
   float: left;
 }
 
+
 // ----------------------------------------------------------------------
 // Buttons
 
@@ -101,7 +107,7 @@ body {
 }
 
 .modal-backdrop {
-  background: $orange;
+  background: $fadeblue;
 }
 
 .modal-backdrop.in {
