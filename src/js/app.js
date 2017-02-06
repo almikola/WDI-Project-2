@@ -4,7 +4,7 @@ const google = google;
 // -  APP init --------------------------------------------
 
 App.init = function() {
-  this.apiUrl = 'http://localhost:3000/api';
+  this.apiUrl = `${window.location.origin}/api`;
   this.$main = $('main');
   $('.register').on('click', this.register.bind(this));
   $('.login').on('click', this.login.bind(this));
@@ -158,7 +158,7 @@ App.loggedOutState = function(){
     // - MAKE THE MAP ----------------------------------------------------------
 
 App.mapSetup = function() {
-  App.apiUrl = 'https://localhost:3000/api';
+  App.apiUrl = `${window.location.origin}/api`;
   App.data = [];
   App.markers = [];
   const canvas = document.getElementById('map-canvas');
