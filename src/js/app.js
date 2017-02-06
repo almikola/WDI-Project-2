@@ -158,7 +158,7 @@ App.loggedOutState = function(){
     // - MAKE THE MAP ----------------------------------------------------------
 
 App.mapSetup = function() {
-  App.apiUrl = 'http://localhost:3000/api';
+  App.apiUrl = 'https://localhost:3000/api';
   App.data = [];
   App.markers = [];
   const canvas = document.getElementById('map-canvas');
