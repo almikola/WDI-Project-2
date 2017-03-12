@@ -1,3 +1,16 @@
-# WDI-Project-2
+![ga](https://cloud.githubusercontent.com/assets/20629455/23824362/2c9817c2-066d-11e7-8988-7b1eefc6d628.jpg)![wdi](https://cloud.githubusercontent.com/assets/20629455/23824363/2ddeaa7e-066d-11e7-8630-f7c890c9f1c1.png)___<br>#Project 2 | Picass-To-Go##OverviewFor the second project at GA, we were tasked with creating an app using a web API merged with the GoogleMaps JavaScript API to create a map-based Single Page Application. Having a strong interest in art and art history, I decided to map out the biggest art heists in history.See the app in action here. (ADD LINK).##The Build
 
-working on read me for project 2222
+* Back-end: Express/Node* Database: MongoDB* Front-end: JavaScript, jQuery* CSS framework: Bootstrap* External API: GoogleMaps##The Process
+Having decided on the idea of creating a map around the greatest art thefts in history, I set about researching on whether such an API was available. Alas, the only art API that came close to being useful was owned by Interpol, and I quickly realised I would have to build my own API to make this app come to life.
+
+Luckily, I found an article online that listed the 50 Greatest Art Heists in History in a carousel format, which meant that each slide in the carousel was formatted similarly. After analysing the information the article provided, I designed and built a database to store the data I would receive after scraping the site. Scraping the website was fun as it was one big puzzle to solve. Using cheerio, I wrote a function that pulled down the content from the body tags on the website. Then, I stored each piece of information into a variable, which I then pushed into the database. In this way, I created my own data source.
+
+Following this, I used the Google GeoCoder to retreieve the latitude and longitude of each location, which was then passed into the GoogleMaps API to plot onto the map. The next step was to create the modals that would pop up with relevant information about every heist, which is a built in function in GoogleMaps. After styling the app, my MVP was complete.
+
+I then decided to add a search function to the website for usability and to make it more interactive. First, I wrote a function to store the values input into the search field. Then, I used a callback function to check that stored value against the values in the database. If they matched, the app would display that marker on the map. After building the authentication mechanism and styling the app, Picasso-To-Go was complete.##Key Challenges / Learnings- The biggest challenge for this app was when I realised the website I wanted to scrape used lazy loading JavaScript. This meant that, although it looked like all the information was present on one page, in fact the page was still loading more information as the user scrolled down. This meant that for my scraping to work, I had to include a mechanism for the function to continue loading the information. This was accomplished by continuing to load the next url until the story url changed.
+
+- Another challenge was that for the search function to work correctly, the characters need to match exactly, including capitalisation. This was fixed by including the toUppercase method before the search term was compared with the database.##Future work
+
+- Perhaps the easiest thing to make this app more functional is to create my own API with this information
+- To include more images of the stolen paintings
+- To expand the search function to include years

@@ -445,11 +445,9 @@ App.setFilter = function(e) {
 
   if ($('.country').val() || $('.artist').val()) {
     if($('.country').val()) {
-      console.log('country');
       const input = $('.country').val();
       App.filterMap(input, 'location');
     } else {
-      console.log('artist');
       const input = $('.artist').val();
       App.filterMap(input, 'artStolen');
     }
@@ -481,7 +479,6 @@ App.filterMap = function(input, field) {
     });
 
     App.markers.push(marker);
-    console.log(art);
     App.addModalWindow(art, marker);
   });
 };
