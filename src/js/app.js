@@ -89,7 +89,6 @@ App.logout = function(e){
     // - TOKEN -------------------------------------------------
 
 App.handleForm = function(e){
-  console.log('should preventDefault');
   e.preventDefault();
   $('.modal').modal('hide');
 
@@ -111,28 +110,24 @@ App.ajaxRequest = function(url, method, data, callback) {
     beforeSend: App.setRequestHeader.bind(this)
   })
       .done(callback)
-      .fail(data => {
-        console.log(data);
+      .fail(err => {
+        console.log(err);
       });
 };
 
 App.setRequestHeader = function(xhr) {
-  console.log('setting header');
   return xhr.setRequestHeader('Authorization', `Bearer ${this.getToken()}`);
 };
 
 App.setToken = function(token) {
-  console.log('token set');
   return window.localStorage.setItem('token', token);
 };
 
 App.getToken = function() {
-  console.log('token got');
   return window.localStorage.getItem('token');
 };
 
 App.removeToken = function(){
-  console.log('token removed');
   return window.localStorage.clear();
 };
 
@@ -140,7 +135,6 @@ App.removeToken = function(){
     // - STATES --------------------------------------------------
 
 App.loggedInState = function() {
-  console.log('loggedin');
   $('.loggedIn').show();
   $('.loggedOut').hide();
   $('#update').addClass('blue');
@@ -352,7 +346,6 @@ App.addArt = function() {
     url: `${App.apiUrl}/art/`,
     beforeSend: App.setRequestHeader.bind(App)
   }).done(data => {
-        // App.johnnieTest = data;
     const geoCoder = new google.maps.Geocoder();
     $.each(data.arts, function(index, art){
       setTimeout(function(){
@@ -366,7 +359,6 @@ App.addArt = function() {
               position: latlng,
               map: App.map,
               animation: google.maps.Animation.DROP,
-              // label: `${art.worth}`,
               icon: {
                 url: '/images/paintbrush.png',
                 scaledSize: new google.maps.Size(50, 50)
@@ -421,7 +413,6 @@ App.seeAll = function(){
 };
 
 App.artIndex = function(e) {
-  console.log('this is runningNow');
   if (e) e.preventDefautl();
   const url = `${this.apiUrl}/art`;
 
